@@ -742,7 +742,7 @@ header .seg button[aria-pressed="true"]{background:#fff;color:#041FBF}
       <section id="g-read">
         <h3>Reading a district</h3>
         <dl class="gdl">
-          <dt>Why it fits</dt><dd>The top reasons this district is a good match, in plain words.</dd>
+          <dt>Why it fits</dt><dd>The top reasons this district is a good match, in plain words. The tags underneath are all its signals at a glance, the same ones the Orenda team sees.</dd>
           <dt>Fit</dt><dd>Strong, Good, Fair or Low.</dd>
           <dt>Status</dt><dd>Where it stands with us, such as Target or Pipeline. Blank means no one is working it yet.</dd>
           <dt>Owner</dt><dd>Who is working it.</dd>
@@ -1066,6 +1066,7 @@ function flags(d){
   tagsOf(d).forEach(x=>f.push(['c-l', x.t, x.T.color, x.l ? `${x.t}: ${x.l}` : x.t]));
   return f;
 }
+const salesChips = d => flags(d).filter(f => f[0]!=='c-flag' && f[1]!==d.ps && !['Not in ORS','Not in Atlas'].includes(f[1])).map(f => f[1]===STATUS.alumni ? [f[0],'Past Orenda partner'] : f);
 function chipHTML(f, clickable){
   const style = f[2] ? ` style="color:${f[2]};background:${f[2]}1f"` : '';
   return `<span class="chip ${f[0]}"${style}${clickable?` data-tag="${esc(f[1])}" title="Filter by ${esc(f[1])}"`:''}>${esc(f[3]||f[1])}</span>`;
@@ -1499,7 +1500,7 @@ function renderTable(){
     $('tbl').querySelector('tbody').innerHTML = show.map(d=>{ const [fl,fc]=fitLabel(d.score), {w}=reasons(d); return `<tr data-c="${d.c}" class="${d.c===selected?'sel':''}">
       <td class="num">${!visible(d)?'—':d.flag?'<span title="Pinned by Orenda" style="color:#c2185b;display:inline-block;vertical-align:-2px">'+FLAG_SVG.replace('<svg ','<svg width="14" height="14" ')+'</span>':d.rank}</td>
       <td><div class="dname">${esc(d.n)}</div><div class="sub">${esc(d.cty)} County${d.e? ' · '+fmtN(d.e)+' students':''}</div>${d.flag?`<span class="flagtag">${FLAG_SVG}Pinned by Orenda</span>`:''}</td>
-      ${!visible(d) ? `<td style="min-width:240px"><span class="sub">Not ranked: not in the Atlas data${/Office of Education|Department of Education/.test(d.n)?' (a county office)':''}. Give it a status to add it to your list.</span></td><td>—</td>` : `<td style="min-width:240px">${d.flag&&d.flagNote?`<div class="flagnote">Note from the Orenda team: ${esc(d.flagNote)}</div>`:''}${esc(salesSentence(d))}${w.length?`<div class="sub" style="color:var(--chip-da-fg)">${esc(w.join(' · '))}</div>`:''}</td>
+      ${!visible(d) ? `<td style="min-width:240px"><span class="sub">Not ranked: not in the Atlas data${/Office of Education|Department of Education/.test(d.n)?' (a county office)':''}. Give it a status to add it to your list.</span></td><td>—</td>` : `<td style="min-width:240px">${d.flag&&d.flagNote?`<div class="flagnote">Note from the Orenda team: ${esc(d.flagNote)}</div>`:''}${esc(salesSentence(d))}${w.length?`<div class="sub" style="color:var(--chip-da-fg)">${esc(w.join(' · '))}</div>`:''}${(()=>{ const sc=salesChips(d); return sc.length?`<div class="chips" style="margin-top:5px">${sc.map(f=>chipHTML(f,false)).join('')}</div>`:''; })()}</td>
       <td><span class="fitlabel ${fc}">${fl}</span></td>`}
       <td>${statusCell(d)}</td>
       <td>${canWrite ? `<select class="own" data-own="${d.c}" aria-label="Owner for ${esc(d.n)}">${ownerOptionsHTML(d.psOwner, '—')}</select>` : esc(d.psOwner||'—')}</td>
